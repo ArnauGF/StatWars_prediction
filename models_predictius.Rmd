@@ -1,0 +1,66 @@
+---
+title: 'StatWars: models predictius'
+author: "Arnau Garcia"
+date: "2024-10-14"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# StatWars: els meus primers models predictius
+
+En aquesta activitat, us volem presentar una eina molt poderosa que utilitzem en estadística per entendre millor el món que ens envolta: els **models predictius**. Aquests models ens ajuden a predir què passarà en el futur a partir de dades que ja coneixem. A través de conceptes senzills com les **regressions lineals** i les **regressions lineals generalitzades**, veurem com podem utilitzar les matemàtiques per establir relacions entre diferents variables i fer prediccions amb aquestes. Descobrireu com la combinació d'estadística i matemàtiques ens pot ajudar a prendre decisions basades en dades, d'una manera més informada i precisa.
+
+Aquest document serveix com a exemple de com ajustar dos models predictius fent servir el llenguatge de programació **R**. **R**, <https://es.wikipedia.org/wiki/R\_(lenguaje_de_programaci%C3%B3n)>, és el principal llenguatge de programació pels estadístics. Es tracta d'un software lliure, gratuït que es troba a l'abast de tothom.
+
+Veurem dos models predictius:
+
+- Predicció de preus d'immobles. 
+- Predicció d'espècies de pingüins.
+
+## Predicció de preus d'inmobles
+
+Farem servir la següent taula de dades:
+
+```{r}
+cases <- read.csv("House Price Prediction Dataset.csv", header = TRUE)
+head(cases)
+```
+
+En el codi d'R d'amunt, podeu veure com llegim la taula de dades, i el nom que li posem (`cases`). També veiem com fer servir la funció `head()` per ensenyar les primeres observacions de la taula de dades.
+
+Podem observar que en la taula de dades tenim les següents variables:
+
+- **Id**: identificador de l'immoble.
+- **Area**: superfície de la casa.
+- **Bedrooms**: número d'habitacions.
+- **Bathrooms**: número de lavabos.
+- **Floors**: número de plantes.
+- **YearBuilt**: any en que es va construir l'immoble.
+- **Location**: localització, pot ser **Downtown** (centre), **Urban** (urbana), **Suburban** (afores), **Rural** (rural).
+- **Condition**: estat en que es troba l'immoble. Pot ser **Excellent** (excel·lent), **Fair** (acceptable), **Good** (bo), **Poor** (pobre).
+- **Garage**: garatge a l'immoble. Pot ser **Yes** o **No**.
+- **Price**: preu de l'immoble.
+
+Les variables **Area**, **Bedrooms**, **Bathrooms**, **Floors**, **YearBuilt** i **Price** són variables numèriques. Les variables **Location**, **Condition** and **Garage** són variables categòriques. 
+
+Canviem el format de les variables categòriques:
+
+```{r}
+cases$Location <- as.factor(cases$Location)
+cases$Condition <- as.factor(cases$Condition)
+cases$Garage <- as.factor(cases$Garage)
+```
+
+La variable que volem predir en el nostre model és: **Price**. Així doncs, abans d'ajustar el nostre model és interessant fer un petit anàlisi exploratori de les dades. Volem veure com es relacionen les diferents variables amb **Price**.
+
+```{r}
+library(ggplot2)
+ggplot(data = cases) +
+  geom_point(aes(x = YearBuilt, y = Price))
+```
+
