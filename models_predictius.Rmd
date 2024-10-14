@@ -64,3 +64,32 @@ ggplot(data = cases) +
   geom_point(aes(x = YearBuilt, y = Price))
 ```
 
+```{r}
+set.seed(1234)
+n <- nrow(cases)
+train_prop <- 2/3
+train_ind <- sample(1:n, train_prop * n)
+cases_train <- cases[train_ind, ]
+cases_test <- cases[-train_ind, ]
+```
+
+```{r}
+lm <- lm(Price ~ ., data = cases_train[,2:10])
+summary(lm)
+```
+
+```{r}
+library(openintro)
+data(ames)
+library(ggplot2)
+ggplot(data = ames) +
+  geom_point(aes(x = area, y = price))
+ggplot(data = ames) +
+  geom_point(aes(x = Overall.Qual, y = price))
+ggplot(data = ames) +
+  geom_boxplot(aes(x = Street, y = price))
+ggplot(data = ames) +
+  geom_boxplot(aes(x = Bldg.Type, y = price))
+```
+
+Ames data set <https://www.openintro.org/data/index.php?data=ames> seems to be better to build a prediction model.
