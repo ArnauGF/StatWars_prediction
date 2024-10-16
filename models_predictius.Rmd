@@ -26,45 +26,9 @@ Veurem dos models predictius:
 
 Farem servir la següent taula de dades:
 
-```{r}
-cases <- read.csv("House Price Prediction Dataset.csv", header = TRUE)
-head(cases)
-```
 
-En el codi d'R d'amunt, podeu veure com llegim la taula de dades, i el nom que li posem (`cases`). També veiem com fer servir la funció `head()` per ensenyar les primeres observacions de la taula de dades.
 
-Podem observar que en la taula de dades tenim les següents variables:
-
-- **Id**: identificador de l'immoble.
-- **Area**: superfície de la casa.
-- **Bedrooms**: número d'habitacions.
-- **Bathrooms**: número de lavabos.
-- **Floors**: número de plantes.
-- **YearBuilt**: any en que es va construir l'immoble.
-- **Location**: localització, pot ser **Downtown** (centre), **Urban** (urbana), **Suburban** (afores), **Rural** (rural).
-- **Condition**: estat en que es troba l'immoble. Pot ser **Excellent** (excel·lent), **Fair** (acceptable), **Good** (bo), **Poor** (pobre).
-- **Garage**: garatge a l'immoble. Pot ser **Yes** o **No**.
-- **Price**: preu de l'immoble.
-
-Les variables **Area**, **Bedrooms**, **Bathrooms**, **Floors**, **YearBuilt** i **Price** són variables numèriques. Les variables **Location**, **Condition** and **Garage** són variables categòriques. 
-
-Canviem el format de les variables categòriques:
-
-```{r}
-cases$Location <- as.factor(cases$Location)
-cases$Condition <- as.factor(cases$Condition)
-cases$Garage <- as.factor(cases$Garage)
-```
-
-La variable que volem predir en el nostre model és: **Price**. Així doncs, abans d'ajustar el nostre model és interessant fer un petit anàlisi exploratori de les dades. Volem veure com es relacionen les diferents variables amb **Price**.
-
-```{r}
-library(ggplot2)
-ggplot(data = cases) +
-  geom_point(aes(x = YearBuilt, y = Price))
-```
-
-```{r}
+```{r, eval=FALSE}
 set.seed(1234)
 n <- nrow(cases)
 train_prop <- 2/3
@@ -73,7 +37,7 @@ cases_train <- cases[train_ind, ]
 cases_test <- cases[-train_ind, ]
 ```
 
-```{r}
+```{r, eval=FALSE}
 lm <- lm(Price ~ ., data = cases_train[,2:10])
 summary(lm)
 ```
@@ -87,9 +51,43 @@ ggplot(data = ames) +
 ggplot(data = ames) +
   geom_point(aes(x = Overall.Qual, y = price))
 ggplot(data = ames) +
+  geom_point(aes(x = Overall.Cond, y = price))
+ggplot(data = ames) +
+  geom_point(aes(x = Year.Built, y = price))
+ggplot(data = ames) +
   geom_boxplot(aes(x = Street, y = price))
 ggplot(data = ames) +
   geom_boxplot(aes(x = Bldg.Type, y = price))
+ggplot(data = ames) +
+  geom_boxplot(aes(x = Kitchen.Qual, y = price))
+ggplot(data = ames) +
+  geom_point(aes(x = Garage.Cars, y = price))
+ggplot(data = ames) +
+  geom_point(aes(x = Garage.Area, y = price))
+ggplot(data = ames) +
+  geom_boxplot(aes(x = Central.Air, y = price))
 ```
 
 Ames data set <https://www.openintro.org/data/index.php?data=ames> seems to be better to build a prediction model.
+
+We select some variables to work only with these variables:
+
+```{r}
+cases <- ames[, c("price", "area", "Overall.Qual", "Overall.Cond", "Year.Built",
+                  "Street", "Bldg.Type", "Garage.Cars", "Garage.Area", 
+                  "Central.Air")]
+head(cases)
+```
+
+Quick check for the linear model:
+
+```{r}
+lm <- lm(price ~ ., data = cases)
+summary(lm)
+lm2 <- lm(price ~ area + Overall.Qual + Overall.Cond + Year.Built +
+           Garage.Area + Bldg.Type + Central.Air, data = cases)
+summary(lm2)
+```
+
+
+2DO: export the data frame created (with only 10 variables) to a CSV file and save the csv file in the GitHub repo. Build the linear model with this data set.
