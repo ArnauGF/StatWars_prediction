@@ -101,7 +101,7 @@ sum(comparison$diffs)
 ```
 
 
-Trying another data set:
+Trying another data set (https://www.kaggle.com/datasets/mirichoi0218/insurance):
 
 ```{r}
 insurance <- read.csv("insurance.csv")
