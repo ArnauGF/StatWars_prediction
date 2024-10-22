@@ -27,16 +27,6 @@ Veurem dos models predictius:
 Farem servir la següent taula de dades:
 
 
-
-```{r, eval=FALSE}
-set.seed(1234)
-n <- nrow(cases)
-train_prop <- 2/3
-train_ind <- sample(1:n, train_prop * n)
-cases_train <- cases[train_ind, ]
-cases_test <- cases[-train_ind, ]
-```
-
 ```{r, eval=FALSE}
 lm <- lm(Price ~ ., data = cases_train[,2:10])
 summary(lm)
@@ -79,15 +69,88 @@ cases <- ames[, c("price", "area", "Overall.Qual", "Overall.Cond", "Year.Built",
 head(cases)
 ```
 
-Quick check for the linear model:
-
 ```{r}
-lm <- lm(price ~ ., data = cases)
-summary(lm)
-lm2 <- lm(price ~ area + Overall.Qual + Overall.Cond + Year.Built +
-           Garage.Area + Bldg.Type + Central.Air, data = cases)
-summary(lm2)
+set.seed(1234)
+n <- nrow(cases)
+train_prop <- 99/100
+train_ind <- sample(1:n, train_prop * n)
+cases_train <- cases[train_ind, ]
+cases_test <- cases[-train_ind, ]
 ```
 
 
-2DO: export the data frame created (with only 10 variables) to a CSV file and save the csv file in the GitHub repo. Build the linear model with this data set.
+Quick check for the linear model:
+
+```{r}
+lm <- lm(price ~ ., data = cases_train)
+summary(lm)
+modAIC <- step(lm)
+summary(modAIC)
+```
+
+```{r}
+preds <- predict(modAIC, newdata = cases_test)
+comparison <- data.frame(real = cases_test$price, predicted = preds,
+                         difer = abs(cases_test$price - preds),
+                         diffs = cases_test$price - preds)
+comparison
+```
+
+```{r}
+sum(comparison$diffs)
+```
+
+
+Trying another data set:
+
+```{r}
+insurance <- read.csv("insurance.csv")
+```
+
+Let us do some data exploration:
+
+```{r}
+ggplot(insurance)+
+  geom_point(aes(x=age, y=charges))
+ggplot(insurance)+
+  geom_boxplot(aes(x=sex, y=charges))
+ggplot(insurance)+
+  geom_boxplot(aes(x=as.factor(children), y=charges))
+ggplot(insurance)+
+  geom_point(aes(x=(bmi), y=charges))
+ggplot(insurance)+
+  geom_boxplot(aes(x=smoker, y=charges))
+ggplot(insurance)+
+  geom_boxplot(aes(x=region, y=charges))
+```
+
+
+Let us split data an fit lm using stepwise:
+
+```{r}
+set.seed(1234)
+n <- nrow(insurance)
+train_prop <- 9/10
+train_ind <- sample(1:n, train_prop * n)
+insurance_train <- insurance[train_ind, ]
+insurance_test <- insurance[-train_ind, ]
+```
+
+The lm:
+
+```{r}
+linmod <- lm(charges ~ ., data = insurance)
+summary(linmod)
+mod_aic <- step(linmod)
+summary(mod_aic)
+```
+
+Now let us make predictions:
+
+```{r}
+preds2 <- predict(mod_aic, newdata = insurance_test)
+comparison2 <- data.frame(real = insurance_test$charges, predicted = preds2,
+                         difer = abs(insurance_test$charges - preds2))
+comparison2
+```
+
