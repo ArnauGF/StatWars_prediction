@@ -24,138 +24,95 @@ Veurem dos models predictius:
 
 ## Predicció de preus d'inmobles
 
-Farem servir la següent taula de dades:
-
-
-```{r, eval=FALSE}
-lm <- lm(Price ~ ., data = cases_train[,2:10])
-summary(lm)
-```
+En aquest primer model volem predir el preu de les cases de la ciutat de Ames, a Iowa. Farem servir una base de dades amb dades reals sobre inmobles en aquesta ciutat dels Estats Units. Podeu trobar informació sobre la base de dades original a <https://www.openintro.org/data/index.php?data=ames>.Farem servir la següent taula de dades per entrenar el nostre primer model predictiu:
 
 ```{r}
-library(openintro)
-data(ames)
+cases_train <- read.csv("cases_train.csv")
+cases_train$X <- NULL
+head(cases_train)
+```
+
+En aquesta base de dades tenim informació sobre 2842 vivendes, per cadascuna tenim 10 variables. Les variables que tenim en aquesta taula són:
+
+* `preu`: preu de l'habitatge.
+* `area`: àrea de la vivenda (en peus quadrats).
+* `qual.total`: valora de l'1 al 10 el material i el acabat general de l'habitatge.
+* `condicio.total`: valora de l'1 al 10 l'estat general de l'habitatge.
+* `any`: any de construcció de la vivenda.
+* `carrer`: tipus de carrer que dona accés a l'inmoble.
+* `tipus`: tipus d'habitatge. 
+* `garatge.cotxes`: número de cotxes que hi caben en el garatge.
+* `garatge.area`: àrea del garatge (en peus quadrats).
+* `aire`: variable que indica si la vivenda té aire condicionat (Y si en té, N si no). 
+
+Observeu que tenim cinc variables numèriques (`preu`, `area`, `any`, `garatge.area`, `garatge.cotxes`), i quatre variables cinc variables categòriques (`qual.total`, `condicio.total`, `carrer`, `tipus`, `aire`). 
+
+Fem una exploració de les dades a través de diferents gràfics que ens ajudaran a saber com es comporten les nostres variables amb respecte la variable que volem predir (`preu`).
+
+```{r}
 library(ggplot2)
-ggplot(data = ames) +
-  geom_point(aes(x = area, y = price))
-ggplot(data = ames) +
-  geom_point(aes(x = Overall.Qual, y = price))
-ggplot(data = ames) +
-  geom_point(aes(x = Overall.Cond, y = price))
-ggplot(data = ames) +
-  geom_point(aes(x = Year.Built, y = price))
-ggplot(data = ames) +
-  geom_boxplot(aes(x = Street, y = price))
-ggplot(data = ames) +
-  geom_boxplot(aes(x = Bldg.Type, y = price))
-ggplot(data = ames) +
-  geom_boxplot(aes(x = Kitchen.Qual, y = price))
-ggplot(data = ames) +
-  geom_point(aes(x = Garage.Cars, y = price))
-ggplot(data = ames) +
-  geom_point(aes(x = Garage.Area, y = price))
-ggplot(data = ames) +
-  geom_boxplot(aes(x = Central.Air, y = price))
+ggplot(data = cases_train) +
+  geom_point(aes(x = area, y = preu), color = "tomato")
+ggplot(data = cases_train) +
+  geom_point(aes(x = qual.total, y = preu), color = "skyblue")
+ggplot(data = cases_train) +
+  geom_point(aes(x = condicio.total, y = preu), color = "darkorange")
+ggplot(data = cases_train) +
+  geom_point(aes(x = any, y = preu), color = "blueviolet")
+ggplot(data = cases_train) +
+  geom_boxplot(aes(x = carrer, y = preu), color = "cyan")
+ggplot(data = cases_train) +
+  geom_boxplot(aes(x = tipus, y = preu), color = "coral4")
+ggplot(data = cases_train) +
+  geom_point(aes(x = garatge.cotxes, y = preu), color = "blue")
+ggplot(data = cases_train) +
+  geom_point(aes(x = garatge.area, y = preu), color = "chartreuse3")
+ggplot(data = cases_train) +
+  geom_boxplot(aes(x = aire, y = preu), color = "deepskyblue3")
 ```
 
-Ames data set <https://www.openintro.org/data/index.php?data=ames> seems to be better to build a prediction model.
+Conclusions sobre els gràfics:
 
-We select some variables to work only with these variables:
+* Com més àrea té, més car l'habitatge.
+* Com més qualitat total té l'inmoble, més car.
+* Sembla que en general, com millor condició general, més car.
+* Sembla que la tendència respecte l'any de construcció és: més nou, més car.
+* Els habitatges amb carrer tipus `Pave` son més cars que els tipus `Grvl`.
+* Sembla que les cases unifamiliars són més cares que les altres.
+* En general, sembla que com més cotxes hi caben en el garatge, més car l'habitatge.
+* Com més àrea té el garatge, més car l'habitatge.
+* Sembla que aquells habitatges amb aire condicionat són més cars.
+
+Ajustem un model lineal:
 
 ```{r}
-cases <- ames[, c("price", "area", "Overall.Qual", "Overall.Cond", "Year.Built",
-                  "Street", "Bldg.Type", "Garage.Cars", "Garage.Area", 
-                  "Central.Air")]
-head(cases)
+model.lineal <- lm(preu ~ area + qual.total + condicio.total + any + tipus + 
+           garatge.area + aire, data = cases_train)
+summary(model.lineal)
 ```
+
+Ara, descarreguem una taula de dades que teniem guardada apart. En aquesta taula de dades hi ha dades noves sobre el problema que estem tractant, aquestes dades no s'han fet servir per entrenar el nostre model. El que farem amb aquestes noves dades és testejar el nostre model i veure si és capaç de fer bones prediccions.
+
+Llegim les noves dades:
 
 ```{r}
-set.seed(1234)
-n <- nrow(cases)
-train_prop <- 99/100
-train_ind <- sample(1:n, train_prop * n)
-cases_train <- cases[train_ind, ]
-cases_test <- cases[-train_ind, ]
+cases_test <- read.csv("cases_test.csv")
+cases_test$X <- NULL
+head(cases_test)
 ```
 
-
-Quick check for the linear model:
+En aquestes noves dades tenim informació sobre 88 habitatges d'Ames. A continuació, fem prediccions amb el model que hem ajustat anteriorment, i veiem si aquestes prediccions s'acosten al valor real de les noves dades:
 
 ```{r}
-lm <- lm(price ~ ., data = cases_train)
-summary(lm)
-modAIC <- step(lm)
-summary(modAIC)
+preds <- predict(model.lineal, newdata = cases_test)
+comparison <- data.frame(Real = cases_test$preu, Predit = preds,
+                         Difer = abs(cases_test$preu - preds))
+head(comparison, 10)
 ```
 
-```{r}
-preds <- predict(modAIC, newdata = cases_test)
-comparison <- data.frame(real = cases_test$price, predicted = preds,
-                         difer = abs(cases_test$price - preds),
-                         diffs = cases_test$price - preds)
-comparison
-```
+Només estem ensenyant 10 resultats de les 88 prediccions que hem fet. Com podeu veure el nostre model només s'equivoca predint el preu real de l'habitatge per 750 dòlars (en una casa que costa 127mil dòlars), 15mil dòlars (en una casa que costa 169mil dòlars), 6mil dòlars (en una casa que costa 132mil dòlars), 557 dòlars (en una casa que costa 143mil dòlars), etc. 
 
-```{r}
-sum(comparison$diffs)
-```
-
-
-Trying another data set (https://www.kaggle.com/datasets/mirichoi0218/insurance):
-
-```{r}
-insurance <- read.csv("insurance.csv")
-```
-
-Let us do some data exploration:
-
-```{r}
-ggplot(insurance)+
-  geom_point(aes(x=age, y=charges))
-ggplot(insurance)+
-  geom_boxplot(aes(x=sex, y=charges))
-ggplot(insurance)+
-  geom_boxplot(aes(x=as.factor(children), y=charges))
-ggplot(insurance)+
-  geom_point(aes(x=(bmi), y=charges))
-ggplot(insurance)+
-  geom_boxplot(aes(x=smoker, y=charges))
-ggplot(insurance)+
-  geom_boxplot(aes(x=region, y=charges))
-```
-
-
-Let us split data an fit lm using stepwise:
-
-```{r}
-set.seed(1234)
-n <- nrow(insurance)
-train_prop <- 9/10
-train_ind <- sample(1:n, train_prop * n)
-insurance_train <- insurance[train_ind, ]
-insurance_test <- insurance[-train_ind, ]
-```
-
-The lm:
-
-```{r}
-linmod <- lm(charges ~ ., data = insurance)
-summary(linmod)
-mod_aic <- step(linmod)
-summary(mod_aic)
-```
-
-Now let us make predictions:
-
-```{r}
-preds2 <- predict(mod_aic, newdata = insurance_test)
-comparison2 <- data.frame(real = insurance_test$charges, predicted = preds2,
-                         difer = abs(insurance_test$charges - preds2))
-comparison2
-```
-
-
-## Penguins
+## Predicció d'espècies de pingüins
 
 ```{r}
 penguins_test <- read.csv("penguins_test.csv")
