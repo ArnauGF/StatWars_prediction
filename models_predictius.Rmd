@@ -3,8 +3,8 @@ title: 'StatWars: models predictius'
 author: "Arnau Garcia"
 date: "2024-10-14"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -83,13 +83,25 @@ Conclusions sobre els gràfics:
 * Com més àrea té el garatge, més car l'habitatge.
 * Sembla que aquells habitatges amb aire condicionat són més cars.
 
-Ajustem un model lineal:
+Ajustem un model lineal (podeu veure informació sobre el model lineal a <https://es.wikipedia.org/wiki/Regresi%C3%B3n_lineal>):
 
 ```{r}
 model.lineal <- lm(preu ~ area + qual.total + condicio.total + any + tipus + 
            garatge.area + aire, data = cases_train)
 summary(model.lineal)
 ```
+
+Analitzem els signes dels coeficients (columna "Estimate") que hem obtingut en el model lineal:
+
+* `area`: positiu.
+* `qual.total`: positiu.
+* `condicio.total`: positiu.
+* `any`: positiu.
+* `tipus`: els signes de tots els coeficients del tipus de casa són negatius amb respecte el tipus `1fam`, el que vol dir que per aquelles cases que no són de tipus unifamiliar el preu és més baix.
+* `garatge.area`: positiu.
+* `aire`: el signe per la categoria `Y` és negatiu, el que vol dir que per aquells habitatges amb aire condicionat el preu és més barat.
+
+Per a totes les variables numèriques amb signe positiu, el que interpretem és que quan augmenten, també ho fan els preus dels habitatges. Observem que els coeficients obtinguts encaixen amb les anteriors interpretacions pels gràfics, menys en el cas de l'aire condicionat.
 
 Ara, descarreguem una taula de dades que teniem guardada apart. En aquesta taula de dades hi ha dades noves sobre el problema que estem tractant, aquestes dades no s'han fet servir per entrenar el nostre model. El que farem amb aquestes noves dades és testejar el nostre model i veure si és capaç de fer bones prediccions.
 
@@ -114,46 +126,88 @@ Només estem ensenyant 10 resultats de les 88 prediccions que hem fet. Com podeu
 
 ## Predicció d'espècies de pingüins
 
+En aquest segon model volem predir espècies de pingüins tenint en compte característiques físiques d'aquests. Les tres espècies de pinguins amb les que treballarem són: Gentoo, Adelie i Chinstrap. A continuació llegim la base de dades i imprimim algunes de les observacions de la taula de dades que farem servir:
+
 ```{r}
-penguins_test <- read.csv("penguins_test.csv")
-penguins_train <- read.csv("https://vicpena.github.io/glm/datasets/penguins_train.csv")
-# convert year and sex into factor
-penguins_train$year <- factor(penguins_train$year)
+penguins_train <- read.csv("penguins_train.csv")
+penguins_train$X <- NULL
+# convertim en factors les variables categòriques
 penguins_train$sex <- factor(penguins_train$sex)
-levels(penguins_train$sex)
-penguins_train$year <- NULL
+head(penguins_train)
 ```
 
+En aquesta taula de dades que farem servir per entrenar el model predictiu tenim informació sobre 233 pingüins diferents, i per cadascún d'ells tenim informació sobre 7 característiques. Les variables que tenim en aquest cas són:
 
-Some plots:
+* `species`: espècie del pingüi (pot ser Gentoo, Adelie o Chinstrap).
+* `island`: illa de procedència del pingüi.
+* `bill_length_mm`: longitud del bec (en mm).
+* `bill_depth_mm`: profunditat del bec (en mm).
+* `flipper_length_mm`: longitud de les aletes (en mm).
+* `body_mass_g`: pes (en grams).
+* `sex`: sexe del pingüi.
+
+Ara tenim quatre variable numèriques (`bill_length_mm`, `bill_depth_mm`, `flipper_length_mm`, `body_mass_g`) i tres variables categòriques (`species`, `island`, `sex`). Una altra observació important, és que la variable que volem predir en aquest cas (`species`) és categòrica. Mentre que abans volíem predir una variable numèrica i contínua (el preu d'habitatge), ara volem predir una variable categòrica. Així doncs, haurem de fer servir un altre model diferent. En aquest cas farem servir un model lineal generalitzat (veure més informació a <https://es.wikipedia.org/wiki/Modelo_lineal_generalizado>).
+
+
+Primerament, tal i com hem fet abans, explorem les dades que tenim fent servir alguns gràfics:
 
 ```{r}
 ggplot(penguins_train) +
-  geom_boxplot(aes(x=species, y=bill_length_mm))
+  geom_boxplot(aes(x=species, y=bill_length_mm), color = "tomato")
 ggplot(penguins_train)+
-  geom_boxplot(aes(x=species, body_mass_g))
+  geom_boxplot(aes(x=species, body_mass_g), color = "blue")
 ggplot(penguins_train)+
-  geom_boxplot(aes(x=species, y=bill_depth_mm))
+  geom_boxplot(aes(x=species, y=bill_depth_mm), color = "chartreuse3")
 ggplot(penguins_train)+
-  geom_boxplot(aes(x=species, y=flipper_length_mm))
-with(penguins_train, table(species, island))
+  geom_boxplot(aes(x=species, y=flipper_length_mm), color = "cyan3")
 ggplot(penguins_train)+
   geom_point(aes(x=bill_length_mm, y=bill_depth_mm, color=species))
 ```
 
-We fit the glm:
+Interpretem els gràfics: 
+
+* Sembla que els pingüins Chinstrap tenen el bec més llarg que els Gentoo, i aquests més que els Adalie.
+* Sembla que els pingüins Gentoo pesen més que els altres.
+* Sembla que els Gentoo tenen un bec menys profund.
+* Sembla que els Gentoo tenen aletes més llargues que els Chinstrap, i aquests més llargues que els Adelie.
+* En el darrer gràfic sembla que es por veure un patró que separa les tres espècies. Podrà el nostre model captar aquesta separació?
+
+També podem fer una taula per veure quines espècies de pingüins hi ha a cada illa:
+
+```{r}
+with(penguins_train, table(species, island))
+```
+
+Veiem que a la illa de Biscoe hi ha 29 Adelies, cap Chinstrap i 83 Gentoos. A la illa de Dream hi ha 40 Adelies, 48 Chinstraps i cap Gentoo. I a la illa de Torgersen només hi ha 33 Adalies.
+
+Ajustem ara el model lineal generalitzat:
 
 ```{r}
 library(nnet)
-mod <- step(multinom(species ~ . , data = penguins_train, trace = FALSE))
-summary(mod)
+model.lingen <- step(multinom(species ~ . , data = penguins_train, 
+                              trace = FALSE), trace = 0)
+summary(model.lingen)
 ```
 
-Let us do predictions and confusion matrix:
+Ara que ja tenim el model predictiu entrenat, ens baixem unes noves dades per comprovar la capacitat de predicció del nostre model, tal i com hem fet abans.
+
+A continuació ens baixem les dades per fer el test:
+
+```{r}
+penguins_test <- read.csv("penguins_test.csv")
+penguins_test$year <- NULL
+penguins_test$sex <- factor(penguins_test$sex)
+head(penguins_test)
+```
+
+En aquestes dades de test tenim informació sobre 100 pingüins.
+
+El que farem ara és dur a terme les prediccions de les noves dades fent servir el model que hem entrenat anteriorment. Un cop fetes les prediccions construirem l'anomenada matriu de confusió. En aquesta matriu podrem veure les espècies que ha predit el nostre model, juntament amb les espècies que són correctes (les que hi ha a la nova taula de dades que estem fent servir).
 
 ```{r}
 library(caret)
-preds_train <- predict(mod, newdata = penguins_test)
+preds_train <- predict(model.lingen, newdata = penguins_test)
 confusionMatrix(preds_train, factor(penguins_test$species))
 ```
 
+Com podeu veure el nostre model només s'ha equivocat una vegada! Un dels pingüins ha estat classificat com a Adelie quan en realitat era Chinstrap. En tots els altres casos la classificació ha estat correcte. Podeu veure que, apart de la matriu de confusió, tenim més informació amunt. Podem veure que el nostre model ha fet una classificació amb una precisió (accuracy) del 99%!
