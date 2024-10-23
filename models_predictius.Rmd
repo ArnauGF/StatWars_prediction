@@ -154,3 +154,49 @@ comparison2 <- data.frame(real = insurance_test$charges, predicted = preds2,
 comparison2
 ```
 
+
+## Penguins
+
+```{r}
+penguins_test <- read.csv("penguins_test.csv")
+penguins_train <- read.csv("https://vicpena.github.io/glm/datasets/penguins_train.csv")
+# convert year and sex into factor
+penguins_train$year <- factor(penguins_train$year)
+penguins_train$sex <- factor(penguins_train$sex)
+levels(penguins_train$sex)
+penguins_train$year <- NULL
+```
+
+
+Some plots:
+
+```{r}
+ggplot(penguins_train) +
+  geom_boxplot(aes(x=species, y=bill_length_mm))
+ggplot(penguins_train)+
+  geom_boxplot(aes(x=species, body_mass_g))
+ggplot(penguins_train)+
+  geom_boxplot(aes(x=species, y=bill_depth_mm))
+ggplot(penguins_train)+
+  geom_boxplot(aes(x=species, y=flipper_length_mm))
+with(penguins_train, table(species, island))
+ggplot(penguins_train)+
+  geom_point(aes(x=bill_length_mm, y=bill_depth_mm, color=species))
+```
+
+We fit the glm:
+
+```{r}
+library(nnet)
+mod <- step(multinom(species ~ . , data = penguins_train, trace = FALSE))
+summary(mod)
+```
+
+Let us do predictions and confusion matrix:
+
+```{r}
+library(caret)
+preds_train <- predict(mod, newdata = penguins_test)
+confusionMatrix(preds_train, factor(penguins_test$species))
+```
+
