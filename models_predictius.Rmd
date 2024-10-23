@@ -3,8 +3,8 @@ title: 'StatWars: models predictius'
 author: "Arnau Garcia"
 date: "2024-10-14"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -19,7 +19,7 @@ Aquest document serveix com a exemple de com ajustar dos models predictius fent 
 
 Veurem dos models predictius:
 
-- Predicció de preus d'immobles. 
+- Predicció de preus d'habitatges. 
 - Predicció d'espècies de pingüins.
 
 ## Predicció de preus d'inmobles
@@ -83,7 +83,12 @@ Conclusions sobre els gràfics:
 * Com més àrea té el garatge, més car l'habitatge.
 * Sembla que aquells habitatges amb aire condicionat són més cars.
 
-Ajustem un model lineal (podeu veure informació sobre el model lineal a <https://es.wikipedia.org/wiki/Regresi%C3%B3n_lineal>):
+Ajustem un model lineal (podeu veure informació sobre el model lineal a <https://es.wikipedia.org/wiki/Regresi%C3%B3n_lineal>). Ajustarem el següent model lineal:
+
+$$ preu_i = \beta_1area_i + \beta_2qual.total_i + \beta_3condicio.total_i + \beta_4any_i + \beta_5tipus_i \\ 
++ \beta_6garatge.area_i + \beta_7aire_i$$
+
+El codi per fer-ho és:
 
 ```{r}
 model.lineal <- lm(preu ~ area + qual.total + condicio.total + any + tipus + 
