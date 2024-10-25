@@ -1,4 +1,4 @@
-# StatWars: el meu primer model predictiu <img src="images/logo.png" align="right" alt="" width="250" />
+# StatWars: el meu primer model predictiu <img src="images/logo.png" align="right" alt="" width="200" />
 
 Aquest és un repositori públic a l'abast de tots els assistents a la xerrada per a la divulgació estadística StatWars, i de qualsevol persona que pugui estar interessada. En aquest repositori trobareu:
 
