@@ -770,7 +770,7 @@ F-statistic:  1015 on 10 and 2830 DF,  p-value: &lt; 2.2e-16</code></pre>
 <img data-src="images/chinstrap.png" class="r-stretch"></section>
 <section id="base-de-dades" class="slide level2">
 <h2>Base de dades</h2>
-<p>llegim la base de dades i imprimim algunes de les observacions de la taula de dades que farem servir:</p>
+<p>Llegim la base de dades i imprimim algunes de les observacions de la taula de dades que farem servir:</p>
 <div class="cell">
 <div class="cell-output-display">
 <table>
@@ -1065,37 +1065,37 @@ AIC: 16.02044 </code></pre>
 <section id="prediccions-3" class="slide level2">
 <h2>Prediccions</h2>
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-           Reference
-Prediction  Adelie Chinstrap Gentoo
-  Adelie        44         1      0
-  Chinstrap      0        19      0
-  Gentoo         0         0     36
-
-Overall Statistics
-                                          
-               Accuracy : 0.99            
-                 95% CI : (0.9455, 0.9997)
-    No Information Rate : 0.44            
-    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
-                                          
-                  Kappa : 0.9842          
-                                          
- Mcnemar's Test P-Value : NA              
-
-Statistics by Class:
-
-                     Class: Adelie Class: Chinstrap Class: Gentoo
-Sensitivity                 1.0000           0.9500          1.00
-Specificity                 0.9821           1.0000          1.00
-Pos Pred Value              0.9778           1.0000          1.00
-Neg Pred Value              1.0000           0.9877          1.00
-Prevalence                  0.4400           0.2000          0.36
-Detection Rate              0.4400           0.1900          0.36
-Detection Prevalence        0.4500           0.1900          0.36
-Balanced Accuracy           0.9911           0.9750          1.00</code></pre>
+<div class="cell-output-display">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Adelie</th>
+<th style="text-align: right;">Chinstrap</th>
+<th style="text-align: right;">Gentoo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Adelie</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Chinstrap</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Gentoo</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">36</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </section>

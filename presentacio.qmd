@@ -190,7 +190,7 @@ En aquest segon model volem predir espècies de pingüins tenint en compte carac
 
 ## Base de dades
 
-llegim la base de dades i imprimim algunes de les observacions de la taula de dades que farem servir:
+Llegim la base de dades i imprimim algunes de les observacions de la taula de dades que farem servir:
 
 ```{r}
 penguins_train <- read.csv("penguins_train.csv")
@@ -288,7 +288,8 @@ El que farem ara és dur a terme les prediccions de les noves dades fent servir 
 ```{r}
 library(caret)
 preds_train <- predict(model.lingen, newdata = penguins_test)
-confusionMatrix(preds_train, factor(penguins_test$species))
+a <- confusionMatrix(preds_train, factor(penguins_test$species))
+kable(a$table)
 ```
 
 ## Resultats
